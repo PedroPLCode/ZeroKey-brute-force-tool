@@ -1,76 +1,82 @@
 import argparse
 from typing import Optional, Dict, List
 from core.scanner import detect_services
-from core.brute_ssh import ssh_bruteforce
-from core.brute_ftp import ftp_bruteforce
-from core.brute_mysql import mysql_bruteforce
-from core.brute_postgres import postgres_bruteforce
 from core.utils import log_result, save_to_json
-
+from settings import (
+    PASSWORDS_FILE, 
+    LOGS_PATH, 
+    LOG_FILE, 
+    RESULT_PATH, 
+    RESULT_FILE, 
+    DEFAULT_USERNAME, 
+    BRUTEFORCE_FUNCS
+    )
 
 def entrypoint() -> None:
     """
     CLI entrypoint for a simple brute-force tool with auto service detection.
     Supports SSH, FTP, MySQL, and PostgreSQL protocols.
     """
-    parser = argparse.ArgumentParser(
-        description="Simple brute force tool for SSH/FTP/MySQL/Postgres with auto service detection"
-    )
-    parser.add_argument("host", help="Target host IP address")
-    parser.add_argument("username", help="Username to authenticate with")
-    parser.add_argument("wordlist", help="Path to password wordlist file")
-    parser.add_argument(
-        "--protocol",
-        choices=["ssh", "ftp", "mysql", "postgres", "auto"],
-        default="auto",
-        help="Protocol to brute-force (default: auto)"
-    )
-    parser.add_argument("--port", type=int, help="Custom port for the selected service")
-    parser.add_argument("--output", help="Path to save JSON output", default=None)
-    args = parser.parse_args()
+    try:
+        parser = argparse.ArgumentParser(
+            description="Simple brute force tool for SSH/FTP/MySQL/Postgres with auto service detection"
+        )
+        parser.add_argument("host", help="Target host IP address")
+        parser.add_argument("username", help="Username to authenticate with", default=DEFAULT_USERNAME)
+        parser.add_argument("wordlist", help="Path to password wordlist file", default=PASSWORDS_FILE)
+        parser.add_argument(
+            "--protocol",
+            choices=["ssh", "ftp", "mysql", "postgres", "auto"],
+            default="auto",
+            help="Protocol to brute-force (default: auto)"
+        )
+        parser.add_argument("--port", type=int, help="Custom port for the selected service")
+        parser.add_argument("--output", help="Path to save JSON output", default=None)
+        args = parser.parse_args()
 
-    print(f"[INFO] Starting brute-force attack on {args.host} as {args.username}")
+        print(f"[INFO] Starting brute-force attack on {args.host} as {args.username}")
 
-    if args.protocol == "auto":
-        detected: List[str] = detect_services(args.host)
-        print(f"[INFO] Detected services: {detected}")
-        if not detected:
-            print("[WARN] No services detected on the target host. Exiting.")
-            return
-    else:
-        detected = [args.protocol]
-
-    result: Dict[str, Optional[str] | bool] = {
-        "host": args.host,
-        "username": args.username,
-        "protocol": None,
-        "success": False,
-        "password": None
-    }
-
-    for proto in detected:
-        password: Optional[str] = None
-
-        if proto == "ssh":
-            password = ssh_bruteforce(args.host, args.username, args.wordlist, port=args.port)
-        elif proto == "ftp":
-            password = ftp_bruteforce(args.host, args.username, args.wordlist, port=args.port)
-        elif proto == "mysql":
-            password = mysql_bruteforce(args.host, args.username, args.wordlist, port=args.port or 3306)
-        elif proto == "postgres":
-            password = postgres_bruteforce(args.host, args.username, args.wordlist, port=args.port or 5432)
+        if args.protocol == "auto":
+            detected: List[str] = detect_services(args.host)
+            print(f"[INFO] Detected services: {detected}")
+            if not detected:
+                print("[WARN] No services detected on the target host. Exiting.")
+                return
         else:
-            print(f"[WARN] Unknown protocol: {proto}, skipping.")
-            continue
+            detected = [args.protocol]
 
-        if password:
-            result.update({
-                "protocol": proto,
-                "success": True,
-                "password": password
-            })
-            log_result(result)
-            break
+        result: Dict[str, Optional[str] | bool] = {
+            "host": args.host,
+            "username": args.username,
+            "protocol": None,
+            "success": False,
+            "password": None
+        }
 
-    save_to_json(result, path=args.output or "results/results.json")
-    print("[INFO] Scan completed.")
+        for proto in detected:
+            password: Optional[str] = None
+
+            if proto in BRUTEFORCE_FUNCS:
+                func, default_port = BRUTEFORCE_FUNCS[proto]
+                port = args.port or default_port
+                password = func(args.host, args.username, args.wordlist, port=port)
+            else:
+                print(f"[WARN] Unknown protocol: {proto}, skipping.")
+                continue
+
+            if password:
+                result.update({
+                    "protocol": proto,
+                    "success": True,
+                    "password": password
+                })
+                log_path = LOGS_PATH + LOG_FILE
+                log_result(result, log_path=log_path)
+                break
+
+        result_path = RESULT_PATH + RESULT_FILE
+        save_to_json(result, path=args.output or result_path)
+        print("[INFO] Scan completed.")
+    except Exception as e:
+        print(f"[ERROR] An error occurred: {e}")
+        exit(1)

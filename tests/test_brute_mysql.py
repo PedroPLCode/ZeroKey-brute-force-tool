@@ -1,0 +1,45 @@
+import pytest
+from unittest.mock import patch, MagicMock
+import pymysql
+from core.brute_mysql import mysql_bruteforce
+
+
+@pytest.fixture
+def mock_open_passwords(tmp_path):
+    wordlist = tmp_path / "passwords.txt"
+    wordlist.write_text("wrongpass\ncorrectpass\nanotherwrong\n")
+    return str(wordlist)
+
+
+@patch("pymysql.connect")
+def test_mysql_bruteforce_success(mock_connect, mock_open_passwords):
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+
+    def side_effect(**kwargs):
+        if kwargs.get("password") == "correctpass":
+            return mock_conn
+        else:
+            raise pymysql.err.OperationalError("Access denied")
+
+    mock_connect.side_effect = side_effect
+
+    result = mysql_bruteforce("127.0.0.1", "user", mock_open_passwords)
+    assert result == "correctpass"
+    mock_conn.close.assert_called_once()
+
+
+@patch("pymysql.connect")
+def test_mysql_bruteforce_fail(mock_connect, mock_open_passwords):
+    mock_connect.side_effect = pymysql.err.OperationalError("Access denied")
+
+    result = mysql_bruteforce("127.0.0.1", "user", mock_open_passwords)
+    assert result is None
+
+
+@patch("pymysql.connect")
+def test_mysql_bruteforce_other_exception(mock_connect, mock_open_passwords):
+    mock_connect.side_effect = Exception("Connection error")
+
+    result = mysql_bruteforce("127.0.0.1", "user", mock_open_passwords)
+    assert result is None
