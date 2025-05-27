@@ -2,6 +2,7 @@ import argparse
 from typing import Optional, Dict, List
 from core.scanner import detect_services
 from core.utils import log_result, save_to_json
+import settings
 from settings import (
     PASSWORDS_FILE, 
     LOGS_PATH, 
@@ -9,7 +10,6 @@ from settings import (
     RESULT_PATH, 
     RESULT_FILE, 
     DEFAULT_USERNAME, 
-    BRUTEFORCE_FUNCS
     )
 
 def entrypoint() -> None:
@@ -56,8 +56,8 @@ def entrypoint() -> None:
         for proto in detected:
             password: Optional[str] = None
 
-            if proto in BRUTEFORCE_FUNCS:
-                func, default_port = BRUTEFORCE_FUNCS[proto]
+            if proto in settings.BRUTEFORCE_FUNCS:
+                func, default_port = settings.BRUTEFORCE_FUNCS[proto]
                 port = args.port or default_port
                 password = func(args.host, args.username, args.wordlist, port=port)
             else:
