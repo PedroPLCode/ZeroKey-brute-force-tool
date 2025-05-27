@@ -36,6 +36,7 @@ def save_to_json(data: Dict[str, Any], path: str = "results/results.json") -> No
         json.dump(data, f, indent=4)
     print(f"[✓] Results saved to {path}")
 
+
 def clear_line():
     """
     Clear the current line in the console.

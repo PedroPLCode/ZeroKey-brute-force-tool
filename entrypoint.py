@@ -2,15 +2,16 @@ import argparse
 from typing import Optional, Dict, List
 from core.scanner import detect_services
 from core.utils import log_result, save_to_json
-import settings
 from settings import (
-    PASSWORDS_FILE, 
-    LOGS_PATH, 
-    LOG_FILE, 
-    RESULT_PATH, 
-    RESULT_FILE, 
-    DEFAULT_USERNAME, 
-    )
+    PASSWORDS_FILE,
+    LOGS_PATH,
+    LOG_FILE,
+    RESULT_PATH,
+    RESULT_FILE,
+    DEFAULT_USERNAME,
+    BRUTEFORCE_FUNCS,
+)
+
 
 def entrypoint() -> None:
     """
@@ -22,15 +23,21 @@ def entrypoint() -> None:
             description="Simple brute force tool for SSH/FTP/MySQL/Postgres with auto service detection"
         )
         parser.add_argument("host", help="Target host IP address")
-        parser.add_argument("username", help="Username to authenticate with", default=DEFAULT_USERNAME)
-        parser.add_argument("wordlist", help="Path to password wordlist file", default=PASSWORDS_FILE)
+        parser.add_argument(
+            "username", help="Username to authenticate with", default=DEFAULT_USERNAME
+        )
+        parser.add_argument(
+            "wordlist", help="Path to password wordlist file", default=PASSWORDS_FILE
+        )
         parser.add_argument(
             "--protocol",
             choices=["ssh", "ftp", "mysql", "postgres", "auto"],
             default="auto",
-            help="Protocol to brute-force (default: auto)"
+            help="Protocol to brute-force (default: auto)",
         )
-        parser.add_argument("--port", type=int, help="Custom port for the selected service")
+        parser.add_argument(
+            "--port", type=int, help="Custom port for the selected service"
+        )
         parser.add_argument("--output", help="Path to save JSON output", default=None)
         args = parser.parse_args()
 
@@ -50,14 +57,14 @@ def entrypoint() -> None:
             "username": args.username,
             "protocol": None,
             "success": False,
-            "password": None
+            "password": None,
         }
 
         for proto in detected:
             password: Optional[str] = None
 
-            if proto in settings.BRUTEFORCE_FUNCS:
-                func, default_port = settings.BRUTEFORCE_FUNCS[proto]
+            if proto in BRUTEFORCE_FUNCS:
+                func, default_port = BRUTEFORCE_FUNCS[proto]
                 port = args.port or default_port
                 password = func(args.host, args.username, args.wordlist, port=port)
             else:
@@ -65,11 +72,9 @@ def entrypoint() -> None:
                 continue
 
             if password:
-                result.update({
-                    "protocol": proto,
-                    "success": True,
-                    "password": password
-                })
+                result.update(
+                    {"protocol": proto, "success": True, "password": password}
+                )
                 log_path = LOGS_PATH + LOG_FILE
                 log_result(result, log_path=log_path)
                 break

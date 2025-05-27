@@ -22,7 +22,7 @@ def mock_services_and_brute():
             "ssh": (mock_ssh, 22),
             "ftp": (mock_ftp, 21),
             "mysql": (mock_mysql, 3306),
-            "postgres": (mock_pg, 5432)
+            "postgres": (mock_pg, 5432),
         }[proto]
 
         yield {
@@ -36,7 +36,6 @@ def mock_services_and_brute():
         }
 
 
-
 def run_entrypoint_with_args(args_list):
     test_args = ["entrypoint.py"] + args_list
     with patch.object(sys, "argv", test_args):
@@ -44,9 +43,9 @@ def run_entrypoint_with_args(args_list):
 
 
 def test_entrypoint_auto_detect_success(mock_services_and_brute):
-    run_entrypoint_with_args([
-        "127.0.0.1", "root", "passwords.txt", "--protocol", "auto"
-    ])
+    run_entrypoint_with_args(
+        ["127.0.0.1", "root", "passwords.txt", "--protocol", "auto"]
+    )
 
     mock = mock_services_and_brute
     mock["detect"].assert_called_once_with("127.0.0.1")
@@ -58,9 +57,9 @@ def test_entrypoint_auto_detect_success(mock_services_and_brute):
 def test_entrypoint_mysql_success(mock_services_and_brute):
     mock_services_and_brute["mysql"].return_value = "mysqlpass"
 
-    run_entrypoint_with_args([
-        "127.0.0.1", "admin", "passwords.txt", "--protocol", "mysql"
-    ])
+    run_entrypoint_with_args(
+        ["127.0.0.1", "admin", "passwords.txt", "--protocol", "mysql"]
+    )
 
     mock_services_and_brute["mysql"].assert_called_once()
     mock_services_and_brute["log"].assert_called_once()
@@ -70,9 +69,9 @@ def test_entrypoint_mysql_success(mock_services_and_brute):
 def test_entrypoint_unknown_service_skips(mock_services_and_brute):
     mock_services_and_brute["detect"].return_value = ["unknown"]
 
-    run_entrypoint_with_args([
-        "127.0.0.1", "user", "passwords.txt", "--protocol", "auto"
-    ])
+    run_entrypoint_with_args(
+        ["127.0.0.1", "user", "passwords.txt", "--protocol", "auto"]
+    )
 
     mock_services_and_brute["save"].assert_called_once()
 
@@ -80,9 +79,9 @@ def test_entrypoint_unknown_service_skips(mock_services_and_brute):
 def test_entrypoint_no_services_detected(mock_services_and_brute):
     mock_services_and_brute["detect"].return_value = []
 
-    run_entrypoint_with_args([
-        "127.0.0.1", "user", "passwords.txt", "--protocol", "auto"
-    ])
+    run_entrypoint_with_args(
+        ["127.0.0.1", "user", "passwords.txt", "--protocol", "auto"]
+    )
 
     mock_services_and_brute["ssh"].assert_not_called()
     mock_services_and_brute["save"].assert_not_called()

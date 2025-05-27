@@ -23,7 +23,8 @@ pip install -r requirements.txt
 ```
 
 ### Usage
-```python __main__.py <host> <username> <wordlist> [--protocol {ssh,ftp,mysql,postgres,auto}] [--port PORT] [--output OUTPUT]
+```bash
+python __main__.py <host> <username> <wordlist> [--protocol {ssh,ftp,mysql,postgres,auto}] [--port PORT] [--output OUTPUT]
 
 Arguments
 <host> — Target host IP or domain

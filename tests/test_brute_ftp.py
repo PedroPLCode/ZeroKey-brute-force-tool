@@ -3,12 +3,14 @@ from unittest.mock import patch, MagicMock
 from ftplib import error_perm
 from core.brute_ftp import ftp_bruteforce
 
+
 @pytest.fixture
 def mock_open_passwords(tmp_path):
     passwords = ["wrongpass", "correctpass", "anotherwrong"]
     wordlist = tmp_path / "passwords.txt"
     wordlist.write_text("\n".join(passwords))
     return str(wordlist)
+
 
 @patch("core.brute_ftp.FTP")
 def test_ftp_bruteforce_success(mock_ftp_class, mock_open_passwords):
@@ -28,6 +30,7 @@ def test_ftp_bruteforce_success(mock_ftp_class, mock_open_passwords):
     result = ftp_bruteforce("127.0.0.1", "user", mock_open_passwords)
     assert result == "correctpass"
 
+
 @patch("ftplib.FTP")
 def test_ftp_bruteforce_fail(mock_ftp_class, mock_open_passwords):
     mock_ftp_instance = MagicMock()
@@ -39,6 +42,7 @@ def test_ftp_bruteforce_fail(mock_ftp_class, mock_open_passwords):
 
     result = ftp_bruteforce("127.0.0.1", "user", mock_open_passwords)
     assert result is None
+
 
 @patch("ftplib.FTP")
 def test_ftp_bruteforce_other_exception(mock_ftp_class, mock_open_passwords):

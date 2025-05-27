@@ -2,6 +2,7 @@ import json
 import pytest
 from core.utils import log_result, save_to_json
 
+
 def test_log_result_creates_log_file_and_writes(tmp_path):
     log_path = tmp_path / "logdir" / "bruteforce.log"
     data = {
@@ -9,7 +10,7 @@ def test_log_result_creates_log_file_and_writes(tmp_path):
         "username": "user",
         "protocol": "ssh",
         "success": True,
-        "password": "secret"
+        "password": "secret",
     }
 
     log_result(data, str(log_path))
@@ -22,6 +23,7 @@ def test_log_result_creates_log_file_and_writes(tmp_path):
     assert "SUCCESS: True" in content
     assert "PASSWORD: secret" in content
     assert content.startswith("[")
+
 
 def test_save_to_json_creates_file_and_saves_data(tmp_path, capsys):
     data = {"key": "value"}
@@ -37,6 +39,7 @@ def test_save_to_json_creates_file_and_saves_data(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "[✓] Results saved to" in captured.out
 
+
 @pytest.mark.parametrize("path", ["results/test.json", "logs/test.log"])
 def test_directories_created_for_log_and_json(tmp_path, path):
     full_path = tmp_path / path
@@ -45,7 +48,7 @@ def test_directories_created_for_log_and_json(tmp_path, path):
         "username": "user",
         "protocol": "proto",
         "success": False,
-        "password": None
+        "password": None,
     }
 
     if full_path.suffix == ".log":

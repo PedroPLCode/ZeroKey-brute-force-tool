@@ -3,11 +3,13 @@ from unittest.mock import patch, MagicMock
 from core.brute_ssh import ssh_bruteforce
 import paramiko
 
+
 @pytest.fixture
 def mock_open_passwords(tmp_path):
     wordlist = tmp_path / "passwords.txt"
     wordlist.write_text("wrongpass\ncorrectpass\nanotherwrong\n")
     return str(wordlist)
+
 
 @patch("paramiko.SSHClient")
 def test_ssh_bruteforce_success(mock_ssh_client_class, mock_open_passwords):
@@ -27,6 +29,7 @@ def test_ssh_bruteforce_success(mock_ssh_client_class, mock_open_passwords):
     result = ssh_bruteforce("127.0.0.1", "user", mock_open_passwords)
     assert result == "correctpass"
 
+
 @patch("paramiko.SSHClient")
 def test_ssh_bruteforce_fail(mock_ssh_client_class, mock_open_passwords):
     mock_client_instance = MagicMock()
@@ -38,6 +41,7 @@ def test_ssh_bruteforce_fail(mock_ssh_client_class, mock_open_passwords):
 
     result = ssh_bruteforce("127.0.0.1", "user", mock_open_passwords)
     assert result is None
+
 
 @patch("paramiko.SSHClient")
 def test_ssh_bruteforce_other_ssh_exception(mock_ssh_client_class, mock_open_passwords):

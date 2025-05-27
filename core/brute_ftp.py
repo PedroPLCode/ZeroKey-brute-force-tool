@@ -3,7 +3,9 @@ from typing import Optional
 from .utils import clear_line
 
 
-def ftp_bruteforce(host: str, username: str, wordlist_path: str, port: int = 21) -> Optional[str]:
+def ftp_bruteforce(
+    host: str, username: str, wordlist_path: str, port: int = 21
+) -> Optional[str]:
     """
     Attempt FTP brute force attack using a password wordlist.
 
@@ -19,7 +21,7 @@ def ftp_bruteforce(host: str, username: str, wordlist_path: str, port: int = 21)
     with open(wordlist_path, "r") as file:
         for line in file:
             password = line.strip()
-            
+
             clear_line()
             print(f"[?] Trying password: {password}", end="\r")
             try:
@@ -35,7 +37,10 @@ def ftp_bruteforce(host: str, username: str, wordlist_path: str, port: int = 21)
                 pass
             except Exception as e:
                 clear_line()
-                print(f"Connection error or other FTP issues: {e}. Continuing...", end="\r")
+                print(
+                    f"Connection error or other FTP issues: {e}. Continuing...",
+                    end="\r",
+                )
                 pass
 
     return None

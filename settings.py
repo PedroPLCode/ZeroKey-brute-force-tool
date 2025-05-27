@@ -4,12 +4,7 @@ from core.brute_mysql import mysql_bruteforce
 from core.brute_postgres import postgres_bruteforce
 from typing import Dict, Optional, Callable
 
-PORTS_TO_SCAN: dict[int, str] = {
-        21: "ftp",
-        22: "ssh",
-        3306: "mysql",
-        5432: "postgres"
-    }
+PORTS_TO_SCAN: dict[int, str] = {21: "ftp", 22: "ssh", 3306: "mysql", 5432: "postgres"}
 
 BRUTEFORCE_FUNCS: Dict[str, tuple[Callable[..., Optional[str]], int]] = {
     "ssh": (ssh_bruteforce, 22),

