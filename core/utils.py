@@ -15,12 +15,13 @@ def log_result(data: Dict[str, Any], log_path: str = "logs/bruteforce.log") -> N
     """
     timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
     line = (
-        f"{timestamp} HOST: {data['host']} USER: {data['username']} "
-        f"PROTO: {data['protocol']} SUCCESS: {data['success']} PASSWORD: {data['password']}\n"
+        f"{timestamp}\nHOST: {data['host']}\nUSER: {data['username']}\n"
+        f"PROTO: {data['protocol']}\nSUCCESS: {data['success']}\nPASSWORD: {data['password']}\n\n"
     )
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, "a") as log:
         log.write(line)
+    print(f"[✓] Log entry added to {log_path}")
 
 
 def save_to_json(data: Dict[str, Any], path: str = "results/results.json") -> None:

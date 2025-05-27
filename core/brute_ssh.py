@@ -25,7 +25,7 @@ def ssh_bruteforce(
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
             clear_line()
-            print(f"[?] Trying password: {password}", end="\r")
+            print(f"[?] Trying SSH password: {password}", end="\r")
             try:
                 client.connect(
                     hostname=host,

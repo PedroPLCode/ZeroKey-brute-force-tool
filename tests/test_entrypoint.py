@@ -1,29 +1,33 @@
 import pytest
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from entrypoint import entrypoint
 
 
 @pytest.fixture
 def mock_services_and_brute():
-    with patch("entrypoint.detect_services") as mock_detect, \
+    with patch("core.brute_ssh.ssh_bruteforce") as mock_ssh, \
+         patch("core.brute_ftp.ftp_bruteforce") as mock_ftp, \
+         patch("core.brute_mysql.mysql_bruteforce") as mock_mysql, \
+         patch("core.brute_postgres.postgres_bruteforce") as mock_pg, \
+         patch("entrypoint.detect_services") as mock_detect, \
          patch("entrypoint.save_to_json") as mock_save, \
          patch("entrypoint.log_result") as mock_log, \
          patch("entrypoint.BRUTEFORCE_FUNCS") as mock_funcs:
 
-        mock_ssh = MagicMock(return_value="testpass")
-        mock_ftp = MagicMock()
-        mock_mysql = MagicMock()
-        mock_pg = MagicMock()
+        mock_ssh.return_value = "sshpass"
+        mock_ftp.return_value = "ftppass"
+        mock_mysql.return_value = "mysqlpass"
+        mock_pg.return_value = "pgpass"
 
         mock_detect.return_value = ["ssh"]
 
-        mock_funcs.__getitem__.side_effect = lambda proto: {
+        mock_funcs.return_value = {
             "ssh": (mock_ssh, 22),
             "ftp": (mock_ftp, 21),
             "mysql": (mock_mysql, 3306),
             "postgres": (mock_pg, 5432),
-        }[proto]
+        }
 
         yield {
             "detect": mock_detect,
@@ -33,8 +37,9 @@ def mock_services_and_brute():
             "pg": mock_pg,
             "save": mock_save,
             "log": mock_log,
+            "funcs": mock_funcs,
         }
-
+        
 
 def run_entrypoint_with_args(args_list):
     test_args = ["entrypoint.py"] + args_list

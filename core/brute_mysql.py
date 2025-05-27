@@ -23,7 +23,7 @@ def mysql_bruteforce(
             password = line.strip()
 
             clear_line()
-            print(f"[?] Trying password: {password}", end="\r")
+            print(f"[?] Trying MySQL password: {password}", end="\r")
             try:
                 conn = pymysql.connect(
                     host=host,
