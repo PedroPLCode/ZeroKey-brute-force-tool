@@ -1,3 +1,5 @@
+dodaj annotacje typów, ang docsting i wszystko ang
+
 import paramiko
 
 def ssh_bruteforce(host, username, wordlist_path, port=22):

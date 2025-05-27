@@ -1,3 +1,5 @@
+dodaj annotacje typów, ang docsting i wszystko ang
+
 import pymysql
 
 def mysql_bruteforce(host, username, wordlist_path, port=3306):

@@ -1,3 +1,5 @@
+dodaj annotacje typów, ang docsting i wszystko ang
+
 import psycopg2
 from psycopg2 import OperationalError
 

@@ -1,3 +1,5 @@
+dodaj annotacje typów, ang docsting i wszystko ang
+
 from ftplib import FTP, error_perm
 
 def ftp_bruteforce(host, username, wordlist_path, port=21):

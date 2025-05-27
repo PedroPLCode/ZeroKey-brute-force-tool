@@ -1,11 +1,11 @@
+dodaj annotacje typów, ang docsting i wszystko ang
+
 import socket
+from settings import PORTS_TO_SCAN
 
 def detect_services(host):
     services = []
-    ports = {
-        21: "ftp",
-        22: "ssh"
-    }
+    ports = PORTS_TO_SCAN
 
     for port, name in ports.items():
         try:
