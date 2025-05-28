@@ -1,11 +1,12 @@
 import json
 import pytest
+from pathlib import Path
 from core.utils import log_result, save_to_json
 
 
-def test_log_result_creates_log_file_and_writes(tmp_path):
+def test_log_result_creates_log_file_and_writes(tmp_path: Path):
     log_path = tmp_path / "logdir" / "bruteforce.log"
-    data = {
+    data: dict[str, object] = {
         "host": "127.0.0.1",
         "username": "user",
         "protocol": "ssh",
@@ -25,7 +26,9 @@ def test_log_result_creates_log_file_and_writes(tmp_path):
     assert content.startswith("[")
 
 
-def test_save_to_json_creates_file_and_saves_data(tmp_path, capsys):
+def test_save_to_json_creates_file_and_saves_data(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+):
     data = {"key": "value"}
     json_path = tmp_path / "results" / "data.json"
 
@@ -41,9 +44,9 @@ def test_save_to_json_creates_file_and_saves_data(tmp_path, capsys):
 
 
 @pytest.mark.parametrize("path", ["results/test.json", "logs/test.log"])
-def test_directories_created_for_log_and_json(tmp_path, path):
+def test_directories_created_for_log_and_json(tmp_path: Path, path: str):
     full_path = tmp_path / path
-    data = {
+    data: dict[str, object] = {
         "host": "host",
         "username": "user",
         "protocol": "proto",

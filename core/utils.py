@@ -14,9 +14,7 @@ def log_result(data: Dict[str, Any], log_path: str = "logs/bruteforce.log") -> N
         log_path (str): Path to the log file. Defaults to 'logs/bruteforce.log'.
     """
     timestamp = get_current_timestamp()
-    line = (
-        f"[{timestamp}] HOST: {data['host']} USER: {data['username']} PROTO: {data['protocol']} SUCCESS: {data['success']} PASSWORD: {data['password']}"
-    )
+    line = f"[{timestamp}] HOST: {data['host']} USER: {data['username']} PROTO: {data['protocol']} SUCCESS: {data['success']} PASSWORD: {data['password']}"
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, "a") as log:
         log.write(line)

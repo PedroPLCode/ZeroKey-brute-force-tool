@@ -1,11 +1,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
+from pathlib import Path
 from ftplib import error_perm
 from core.brute_ftp import ftp_bruteforce
 
 
 @pytest.fixture
-def mock_open_passwords(tmp_path):
+def mock_open_passwords(tmp_path: Path):
     passwords = ["wrongpass", "correctpass", "anotherwrong"]
     wordlist = tmp_path / "passwords.txt"
     wordlist.write_text("\n".join(passwords))
@@ -13,11 +14,11 @@ def mock_open_passwords(tmp_path):
 
 
 @patch("core.brute_ftp.FTP")
-def test_ftp_bruteforce_success(mock_ftp_class, mock_open_passwords):
+def test_ftp_bruteforce_success(mock_ftp_class: MagicMock, mock_open_passwords: str):
     mock_ftp_instance = MagicMock()
     mock_ftp_class.return_value = mock_ftp_instance
 
-    def login_side_effect(user, passwd):
+    def login_side_effect(user: str, passwd: str) -> str:
         if passwd == "correctpass":
             return "230 Login successful."
         else:
@@ -32,7 +33,7 @@ def test_ftp_bruteforce_success(mock_ftp_class, mock_open_passwords):
 
 
 @patch("ftplib.FTP")
-def test_ftp_bruteforce_fail(mock_ftp_class, mock_open_passwords):
+def test_ftp_bruteforce_fail(mock_ftp_class: MagicMock, mock_open_passwords: str):
     mock_ftp_instance = MagicMock()
     mock_ftp_class.return_value = mock_ftp_instance
 
@@ -45,7 +46,9 @@ def test_ftp_bruteforce_fail(mock_ftp_class, mock_open_passwords):
 
 
 @patch("ftplib.FTP")
-def test_ftp_bruteforce_other_exception(mock_ftp_class, mock_open_passwords):
+def test_ftp_bruteforce_other_exception(
+    mock_ftp_class: MagicMock, mock_open_passwords: str
+):
     mock_ftp_instance = MagicMock()
     mock_ftp_class.return_value = mock_ftp_instance
 

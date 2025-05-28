@@ -1,22 +1,25 @@
 import pytest
 from unittest.mock import patch, MagicMock
+from pathlib import Path
 from core.brute_ssh import ssh_bruteforce
 import paramiko
 
 
 @pytest.fixture
-def mock_open_passwords(tmp_path):
+def mock_open_passwords(tmp_path: Path):
     wordlist = tmp_path / "passwords.txt"
     wordlist.write_text("wrongpass\ncorrectpass\nanotherwrong\n")
     return str(wordlist)
 
 
 @patch("paramiko.SSHClient")
-def test_ssh_bruteforce_success(mock_ssh_client_class, mock_open_passwords):
+def test_ssh_bruteforce_success(
+    mock_ssh_client_class: MagicMock, mock_open_passwords: str
+):
     mock_client_instance = MagicMock()
     mock_ssh_client_class.return_value = mock_client_instance
 
-    def connect_side_effect(**kwargs):
+    def connect_side_effect(**kwargs: object) -> None:
         if kwargs.get("password") == "correctpass":
             return None
         else:
@@ -31,7 +34,9 @@ def test_ssh_bruteforce_success(mock_ssh_client_class, mock_open_passwords):
 
 
 @patch("paramiko.SSHClient")
-def test_ssh_bruteforce_fail(mock_ssh_client_class, mock_open_passwords):
+def test_ssh_bruteforce_fail(
+    mock_ssh_client_class: MagicMock, mock_open_passwords: str
+):
     mock_client_instance = MagicMock()
     mock_ssh_client_class.return_value = mock_client_instance
 
@@ -44,7 +49,9 @@ def test_ssh_bruteforce_fail(mock_ssh_client_class, mock_open_passwords):
 
 
 @patch("paramiko.SSHClient")
-def test_ssh_bruteforce_other_ssh_exception(mock_ssh_client_class, mock_open_passwords):
+def test_ssh_bruteforce_other_ssh_exception(
+    mock_ssh_client_class: MagicMock, mock_open_passwords: str
+):
     mock_client_instance = MagicMock()
     mock_ssh_client_class.return_value = mock_client_instance
 
