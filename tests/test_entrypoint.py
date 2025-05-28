@@ -1,6 +1,6 @@
 import pytest
 import sys
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from entrypoint import entrypoint
 
 
@@ -13,7 +13,12 @@ def mock_services_and_brute():
          patch("entrypoint.detect_services") as mock_detect, \
          patch("entrypoint.save_to_json") as mock_save, \
          patch("entrypoint.log_result") as mock_log, \
-         patch("entrypoint.BRUTEFORCE_FUNCS") as mock_funcs:
+         patch("entrypoint.BRUTEFORCE_FUNCS", {
+            "ssh": (mock_ssh, 22, 3),
+            "ftp": (mock_ftp, 21, 3),
+            "mysql": (mock_mysql, 3306, 3),
+            "postgres": (mock_pg, 5432, 3),
+        }) as mock_funcs:
 
         mock_ssh.return_value = "sshpass"
         mock_ftp.return_value = "ftppass"
@@ -21,13 +26,6 @@ def mock_services_and_brute():
         mock_pg.return_value = "pgpass"
 
         mock_detect.return_value = ["ssh"]
-
-        mock_funcs.return_value = {
-            "ssh": (mock_ssh, 22),
-            "ftp": (mock_ftp, 21),
-            "mysql": (mock_mysql, 3306),
-            "postgres": (mock_pg, 5432),
-        }
 
         yield {
             "detect": mock_detect,
