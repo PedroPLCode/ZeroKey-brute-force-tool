@@ -13,10 +13,9 @@ def log_result(data: Dict[str, Any], log_path: str = "logs/bruteforce.log") -> N
                                'success', and 'password'.
         log_path (str): Path to the log file. Defaults to 'logs/bruteforce.log'.
     """
-    timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    timestamp = get_current_timestamp()
     line = (
-        f"{timestamp}\nHOST: {data['host']}\nUSER: {data['username']}\n"
-        f"PROTO: {data['protocol']}\nSUCCESS: {data['success']}\nPASSWORD: {data['password']}\n\n"
+        f"[{timestamp}] HOST: {data['host']} USER: {data['username']} PROTO: {data['protocol']} SUCCESS: {data['success']} PASSWORD: {data['password']}"
     )
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, "a") as log:
@@ -36,6 +35,16 @@ def save_to_json(data: Dict[str, Any], path: str = "results/results.json") -> No
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
     print(f"[✓] Results saved to {path}")
+
+
+def get_current_timestamp() -> str:
+    """
+    Get the current timestamp in the format [YYYY-MM-DD HH:MM:SS].
+
+    Returns:
+        str: Current timestamp.
+    """
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def clear_line():

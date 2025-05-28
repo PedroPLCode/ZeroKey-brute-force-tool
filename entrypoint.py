@@ -1,9 +1,9 @@
 import argparse
 from typing import Optional, Dict, List
 from core.scanner import detect_services
-from core.utils import log_result, save_to_json
+from core.utils import log_result, save_to_json, get_current_timestamp
 from settings import (
-    PASSWORDS_FILE,
+    DEFAULT_PASSWORDS_FILE,
     LOGS_PATH,
     LOG_FILE,
     RESULT_PATH,
@@ -27,7 +27,9 @@ def entrypoint() -> None:
             "username", help="Username to authenticate with", default=DEFAULT_USERNAME
         )
         parser.add_argument(
-            "wordlist", help="Path to password wordlist file", default=PASSWORDS_FILE
+            "wordlist",
+            help="Path to password wordlist file",
+            default=DEFAULT_PASSWORDS_FILE,
         )
         parser.add_argument(
             "--protocol",
@@ -53,6 +55,7 @@ def entrypoint() -> None:
             detected = [args.protocol]
 
         result: Dict[str, Optional[str] | bool] = {
+            "timestamp": get_current_timestamp(),
             "host": args.host,
             "username": args.username,
             "protocol": None,
@@ -64,9 +67,11 @@ def entrypoint() -> None:
             password: Optional[str] = None
 
             if proto in BRUTEFORCE_FUNCS:
-                func, default_port = BRUTEFORCE_FUNCS[proto]
+                func, default_port, timeout = BRUTEFORCE_FUNCS[proto]
                 port = args.port or default_port
-                password = func(args.host, args.username, args.wordlist, port=port)
+                password = func(
+                    args.host, args.username, args.wordlist, port=port, timeout=timeout
+                )
             else:
                 print(f"[WARN] Unknown protocol: {proto}, skipping.")
                 continue

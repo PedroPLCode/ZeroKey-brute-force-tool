@@ -9,6 +9,7 @@ def postgres_bruteforce(
     username: str,
     wordlist_path: str,
     port: int = 5432,
+    timeout: int = 3,
     dbname: str = "postgres",
 ) -> Optional[str]:
     """
@@ -37,7 +38,7 @@ def postgres_bruteforce(
                     password=password,
                     port=port,
                     dbname=dbname,
-                    connect_timeout=3,
+                    connect_timeout=timeout,
                 )
                 print(f"[+] PostgreSQL login succeeded: {username}:{password}")
                 conn.close()

