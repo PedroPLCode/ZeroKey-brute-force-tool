@@ -23,7 +23,7 @@ def ftp_bruteforce(
             password = line.strip()
 
             clear_line()
-            print(f"[?] Trying FTP password: {password}", end="\r")
+            print(f"[?] Trying FTP {username}:{password}", end="\r")
             try:
                 ftp = FTP()
                 ftp.connect(host, port, timeout=timeout)

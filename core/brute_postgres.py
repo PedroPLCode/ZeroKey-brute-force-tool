@@ -30,7 +30,7 @@ def postgres_bruteforce(
             password = line.strip()
 
             clear_line()
-            print(f"[?] Trying PostgreSQL password: {password}", end="\r")
+            print(f"[?] Trying PostgreSQL {username}:{password}", end="\r")
             try:
                 conn = psycopg2.connect(
                     host=host,

@@ -1,7 +1,30 @@
 import os
 import json
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List
+
+
+def load_usernames_from_file(path: str) -> List[str]:
+    """
+    Load usernames from a file, ignoring comments and empty lines.
+
+    Args:
+        path (str): Path to the file containing usernames.
+
+    Returns:
+        List[str]: List of usernames.
+    """
+    users: List[str] = []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                users.append(line)
+    except Exception as e:
+        print(f"[ERROR] Unable to read user file '{path}': {e}")
+    return users
 
 
 def log_result(data: Dict[str, Any], log_path: str = "logs/bruteforce.log") -> None:
@@ -52,18 +75,17 @@ def clear_line():
     print("\033[K", end="\r")
 
 
-def create_results_filename(host: str, proto: str, username: str) -> str:
+def create_results_filename(host: str) -> str:
     """
-    Create a results filename based on the host, protocol, and username.
+    Create a results filename based on the host.
 
     Args:
         host (str): Target host.
         proto (str): Protocol used.
-        username (str): Username attempted.
 
     Returns:
         str: Generated filename.
     """
     safe_host = host.replace('.', '_')
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"results_{timestamp}_{safe_host}_{proto}_{username}.json"
+    return f"brute_force_results_{timestamp}_{safe_host}.json"

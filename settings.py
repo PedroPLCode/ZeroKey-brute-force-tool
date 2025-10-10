@@ -13,8 +13,10 @@ BRUTEFORCE_FUNCS: Dict[str, Tuple[Callable[..., Optional[str]], int, int]] = {
     "postgres": (postgres_bruteforce, 5432, 3),
 }
 
-DEFAULT_USERNAME = "root"
-DEFAULT_PASSWORDS_FILE = "passwords.txt"
+DEFAULT_USERNAMES = ["root", "admin", "postgres"]
+DATA_DIR = "data/"
+DEFAULT_USERNAMES_FILE = DATA_DIR + "usernames.txt"
+DEFAULT_PASSWORDS_FILE = DATA_DIR + "passwords.txt"
 
 RESULT_PATH = "results/"
 
