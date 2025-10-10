@@ -5,6 +5,11 @@ from core.utils import log_result, save_to_json
 
 
 def test_log_result_creates_log_file_and_writes(tmp_path: Path):
+    """Test that log_result creates a log file and writes the expected content.
+
+    Args:
+        tmp_path (Path): Temporary directory path for the test.
+    """
     log_path = tmp_path / "logdir" / "bruteforce.log"
     data: dict[str, object] = {
         "host": "127.0.0.1",
@@ -29,6 +34,12 @@ def test_log_result_creates_log_file_and_writes(tmp_path: Path):
 def test_save_to_json_creates_file_and_saves_data(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ):
+    """Test that save_to_json creates a JSON file and saves the expected data.
+
+    Args:
+        tmp_path (Path): Temporary directory path for the test.
+        capsys (pytest.CaptureFixture[str]): Capture fixture for stdout.
+    """
     data = {"key": "value"}
     json_path = tmp_path / "results" / "data.json"
 
@@ -45,6 +56,12 @@ def test_save_to_json_creates_file_and_saves_data(
 
 @pytest.mark.parametrize("path", ["results/test.json", "logs/test.log"])
 def test_directories_created_for_log_and_json(tmp_path: Path, path: str):
+    """Test that the necessary directories are created for log and JSON files.
+
+    Args:
+        tmp_path (Path): Temporary directory path for the test.
+        path (str): Path to the log or JSON file.
+    """
     full_path = tmp_path / path
     data: dict[str, object] = {
         "host": "host",

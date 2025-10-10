@@ -7,6 +7,13 @@ import paramiko
 
 @pytest.fixture
 def mock_open_passwords(tmp_path: Path):
+    """Mock the opening of the passwords file.
+
+    Keyword arguments:
+    tmp_path -- The temporary directory path for the test.
+    Return: The path to the mock passwords file.
+    """
+    
     wordlist = tmp_path / "passwords.txt"
     wordlist.write_text("wrongpass\ncorrectpass\nanotherwrong\n")
     return str(wordlist)
@@ -16,6 +23,19 @@ def mock_open_passwords(tmp_path: Path):
 def test_ssh_bruteforce_success(
     mock_ssh_client_class: MagicMock, mock_open_passwords: str
 ):
+    """Test the SSH brute-force function for successful authentication.
+
+    Args:
+        mock_ssh_client_class (MagicMock): Mocked SSH client class.
+        mock_open_passwords (str): Path to the mock passwords file.
+
+    Raises:
+        paramiko.AuthenticationException: If authentication fails.
+        paramiko.SSHException: For other SSH-related exceptions.
+
+    Returns:
+        _type_: The password if found, else None.
+    """
     mock_client_instance = MagicMock()
     mock_ssh_client_class.return_value = mock_client_instance
 
@@ -37,6 +57,12 @@ def test_ssh_bruteforce_success(
 def test_ssh_bruteforce_fail(
     mock_ssh_client_class: MagicMock, mock_open_passwords: str
 ):
+    """Test the SSH brute-force function for failed authentication.
+
+    Args:
+        mock_ssh_client_class (MagicMock): Mocked SSH client class.
+        mock_open_passwords (str): Path to the mock passwords file.
+    """
     mock_client_instance = MagicMock()
     mock_ssh_client_class.return_value = mock_client_instance
 
@@ -52,6 +78,12 @@ def test_ssh_bruteforce_fail(
 def test_ssh_bruteforce_other_ssh_exception(
     mock_ssh_client_class: MagicMock, mock_open_passwords: str
 ):
+    """Test the SSH brute-force function for other SSH-related exceptions.
+
+    Args:
+        mock_ssh_client_class (MagicMock): Mocked SSH client class.
+        mock_open_passwords (str): Path to the mock passwords file.
+    """
     mock_client_instance = MagicMock()
     mock_ssh_client_class.return_value = mock_client_instance
 

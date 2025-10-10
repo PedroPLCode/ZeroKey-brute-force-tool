@@ -17,7 +17,6 @@ DEFAULT_USERNAME = "root"
 DEFAULT_PASSWORDS_FILE = "passwords.txt"
 
 RESULT_PATH = "results/"
-RESULT_FILE = "results.json"
 
 LOGS_PATH = "logs/"
 LOG_FILE = "brute_force.log"

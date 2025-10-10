@@ -1,13 +1,17 @@
 import argparse
 from typing import Optional, Dict, List
 from core.scanner import detect_services
-from core.utils import log_result, save_to_json, get_current_timestamp
+from core.utils import (
+    log_result, 
+    save_to_json, 
+    create_results_filename, 
+    get_current_timestamp
+)
 from settings import (
     DEFAULT_PASSWORDS_FILE,
     LOGS_PATH,
     LOG_FILE,
     RESULT_PATH,
-    RESULT_FILE,
     DEFAULT_USERNAME,
     BRUTEFORCE_FUNCS,
 )
@@ -17,6 +21,7 @@ def entrypoint() -> None:
     """
     CLI entrypoint for a simple brute-force tool with auto service detection.
     Supports SSH, FTP, MySQL, and PostgreSQL protocols.
+    Results are logged and can be saved in JSON format.
     """
     try:
         parser = argparse.ArgumentParser(
@@ -57,9 +62,9 @@ def entrypoint() -> None:
         result: Dict[str, Optional[str] | bool] = {
             "timestamp": get_current_timestamp(),
             "host": args.host,
-            "username": args.username,
             "protocol": None,
             "success": False,
+            "username": args.username,
             "password": None,
         }
 
@@ -78,15 +83,21 @@ def entrypoint() -> None:
 
             if password:
                 result.update(
-                    {"protocol": proto, "success": True, "password": password}
+                    {"protocol": proto, "success": True, "username": args.username, "password": password}
                 )
                 log_path = LOGS_PATH + LOG_FILE
                 log_result(result, log_path=log_path)
-                break
+                print(f"[SUCCESS] {proto.upper()} - Username: {args.username}, Password: {password}")
 
-        result_path = RESULT_PATH + RESULT_FILE
+        results_filename = create_results_filename(args.host, proto, args.username)
+        result_path = RESULT_PATH + results_filename
         save_to_json(result, path=args.output or result_path)
-        print("[INFO] Scan completed.")
+        print("[INFO] Brute-force attack completed.")
     except Exception as e:
         print(f"[ERROR] An error occurred: {e}")
         exit(1)
+
+
+if __name__ == "__main__":
+    entrypoint()
+    

@@ -14,7 +14,7 @@ def log_result(data: Dict[str, Any], log_path: str = "logs/bruteforce.log") -> N
         log_path (str): Path to the log file. Defaults to 'logs/bruteforce.log'.
     """
     timestamp = get_current_timestamp()
-    line = f"[{timestamp}] HOST: {data['host']} USER: {data['username']} PROTO: {data['protocol']} SUCCESS: {data['success']} PASSWORD: {data['password']}"
+    line = f"[{timestamp}] HOST: {data['host']} PROTO: {data['protocol']} SUCCESS: {data['success']} USER: {data['username']} PASSWORD: {data['password']}\n"
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, "a") as log:
         log.write(line)
@@ -50,3 +50,20 @@ def clear_line():
     Clear the current line in the console.
     """
     print("\033[K", end="\r")
+
+
+def create_results_filename(host: str, proto: str, username: str) -> str:
+    """
+    Create a results filename based on the host, protocol, and username.
+
+    Args:
+        host (str): Target host.
+        proto (str): Protocol used.
+        username (str): Username attempted.
+
+    Returns:
+        str: Generated filename.
+    """
+    safe_host = host.replace('.', '_')
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"results_{timestamp}_{safe_host}_{proto}_{username}.json"

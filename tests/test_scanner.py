@@ -11,6 +11,11 @@ sample_ports = {
 
 @pytest.fixture(autouse=True)
 def patch_ports_to_scan(monkeypatch: pytest.MonkeyPatch):
+    """Patch the PORTS_TO_SCAN variable for testing.
+
+    Args:
+        monkeypatch (pytest.MonkeyPatch): Pytest monkeypatch fixture.
+    """
     monkeypatch.setattr("core.scanner.PORTS_TO_SCAN", sample_ports)
 
 

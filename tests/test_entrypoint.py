@@ -7,6 +7,11 @@ from entrypoint import entrypoint
 
 @pytest.fixture
 def mock_services_and_brute() -> Generator[dict[str, Any], None, None]:
+    """Mock the service detection and brute-force functions.
+
+    Yields:
+        Generator[dict[str, Any], None, None]: Mocked functions and their return values.
+    """
     with patch("core.brute_ssh.ssh_bruteforce") as mock_ssh, patch(
         "core.brute_ftp.ftp_bruteforce"
     ) as mock_ftp, patch("core.brute_mysql.mysql_bruteforce") as mock_mysql, patch(
@@ -47,12 +52,22 @@ def mock_services_and_brute() -> Generator[dict[str, Any], None, None]:
 
 
 def run_entrypoint_with_args(args_list: list[str]) -> None:
+    """Run the entrypoint with the given command-line arguments.
+
+    Args:
+        args_list (list[str]): List of command-line arguments.
+    """
     test_args: list[str] = ["entrypoint.py"] + args_list
     with patch.object(sys, "argv", test_args):
         entrypoint()
 
 
 def test_entrypoint_auto_detect_success(mock_services_and_brute: dict[str, Any]):
+    """Test the entrypoint with auto-detection of services.
+
+    Args:
+        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
+    """
     run_entrypoint_with_args(
         ["127.0.0.1", "root", "passwords.txt", "--protocol", "auto"]
     )
@@ -65,6 +80,11 @@ def test_entrypoint_auto_detect_success(mock_services_and_brute: dict[str, Any])
 
 
 def test_entrypoint_mysql_success(mock_services_and_brute: dict[str, Any]):
+    """Test the entrypoint with MySQL protocol.
+
+    Args:
+        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
+    """
     mock_services_and_brute["mysql"].return_value = "mysqlpass"
 
     run_entrypoint_with_args(
@@ -77,6 +97,11 @@ def test_entrypoint_mysql_success(mock_services_and_brute: dict[str, Any]):
 
 
 def test_entrypoint_unknown_service_skips(mock_services_and_brute: dict[str, Any]):
+    """Test the entrypoint with an unknown service.
+
+    Args:
+        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
+    """
     mock_services_and_brute["detect"].return_value = ["unknown"]
 
     run_entrypoint_with_args(
@@ -87,6 +112,11 @@ def test_entrypoint_unknown_service_skips(mock_services_and_brute: dict[str, Any
 
 
 def test_entrypoint_no_services_detected(mock_services_and_brute: dict[str, Any]):
+    """Test the entrypoint when no services are detected.
+
+    Args:
+        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
+    """
     mock_services_and_brute["detect"].return_value = []
 
     run_entrypoint_with_args(
