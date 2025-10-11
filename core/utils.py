@@ -41,7 +41,7 @@ def log_result(data: Dict[str, Any], log_path: str = "logs/bruteforce.log") -> N
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, "a") as log:
         log.write(line)
-    print(f"[✓] Log entry added to {log_path}")
+    print(f"[OK] Log entry added to {log_path}")
 
 
 def save_to_json(data: Dict[str, Any], path: str = "results/results.json") -> None:
@@ -55,7 +55,7 @@ def save_to_json(data: Dict[str, Any], path: str = "results/results.json") -> No
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
-    print(f"[✓] Results saved to {path}")
+    print(f"[OK] Results saved to {path}")
 
 
 def get_current_timestamp() -> str:

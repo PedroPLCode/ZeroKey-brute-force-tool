@@ -91,12 +91,13 @@ def entrypoint() -> None:
                 }
 
                 if proto in BRUTEFORCE_FUNCS:
-                    func, default_port, timeout = BRUTEFORCE_FUNCS[proto]
+                    func, default_port, timeout, delay = BRUTEFORCE_FUNCS[proto]
                     port = args.port or default_port
                     wordlist_path = args.wordlist or DEFAULT_PASSWORDS_FILE
                     try:
+                        print(f"[INFO] Attempting {proto.upper()} brute-force for user '{user}' on host {args.host} port {port}... delay between attempts: {delay}s")
                         password = func(
-                            args.host, user, wordlist_path, port=port, timeout=timeout
+                            args.host, user, wordlist_path, port=port, timeout=timeout, delay=delay
                         )
                     except Exception as e:
                         print(f"[ERROR] Error during brute-force attempt ({proto}) for {user}: {e}")

@@ -1,10 +1,15 @@
+import time
 import pymysql
 from typing import Optional
 from .utils import clear_line
 
 
 def mysql_bruteforce(
-    host: str, username: str, wordlist_path: str, port: int = 3306, timeout: int = 3
+    host: str,
+    username: str,
+    wordlist_path: str,
+    port: int = 3306,
+    timeout: int = 3, delay: float = 1.0
 ) -> Optional[str]:
     """
     Attempt MySQL brute force attack using a password wordlist.
@@ -38,12 +43,14 @@ def mysql_bruteforce(
             except pymysql.err.OperationalError:
                 clear_line()
                 print(f"[-] MySQL login failed for {username}:{password}", end="\r")
-                continue
+                pass
             except Exception as e:
                 clear_line()
                 print(
                     f"Connection error or other MYSQL issues: {e}. Continuing...",
                     end="\r",
                 )
-                continue
+                pass
+            time.sleep(delay)
+            
     return None

@@ -1,3 +1,4 @@
+import time
 import psycopg2
 from psycopg2 import OperationalError
 from typing import Optional
@@ -11,6 +12,7 @@ def postgres_bruteforce(
     port: int = 5432,
     timeout: int = 3,
     dbname: str = "postgres",
+    delay: float = 1.0
 ) -> Optional[str]:
     """
     Attempt PostgreSQL brute force attack using a password wordlist.
@@ -48,13 +50,15 @@ def postgres_bruteforce(
                 print(
                     f"[-] PostgreSQL login failed for {username}:{password}", end="\r"
                 )
-                continue
+                pass
             except Exception as e:
                 clear_line()
                 print(
                     f"Connection error or other POSTGRES issues: {e}. Continuing...",
                     end="\r",
                 )
-                continue
+                pass
+            time.sleep(delay)
+            
     print("[!] No valid password found.")
     return None

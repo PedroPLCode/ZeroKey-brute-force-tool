@@ -4,13 +4,30 @@ from core.brute_mysql import mysql_bruteforce
 from core.brute_postgres import postgres_bruteforce
 from typing import Dict, Optional, Callable, Tuple
 
-PORTS_TO_SCAN: dict[int, str] = {21: "ftp", 22: "ssh", 3306: "mysql", 5432: "postgres"}
+"""
+Configuration settings for the brute-force tool.
+PORTS_TO_SCAN is a dictionary mapping common service ports to their respective service names.
+SCAN_DELAY sets a delay between port scans to avoid overwhelming the target.
+BRUTEFORCE_FUNCS maps service names to their corresponding brute-force functions along with
+default port, max attempts and delay between attempts.
+DEFAULT_USERNAMES provides a list of common usernames to try during brute-force attacks.
+DATA_DIR specifies the directory where username and password files are stored.
+DEFAULT_USERNAMES_FILE and DEFAULT_PASSWORDS_FILE define the paths to these files.
+DEFAULT_PASSWORDS_FILE defines the path to the default passwords file.
+RESULT_PATH and LOGS_PATH define where to store results and logs respectively.
+LOG_PATH specifies the log file name.
+LOG_FILE specifies the log file name.
+"""
 
-BRUTEFORCE_FUNCS: Dict[str, Tuple[Callable[..., Optional[str]], int, int]] = {
-    "ssh": (ssh_bruteforce, 22, 3),
-    "ftp": (ftp_bruteforce, 21, 3),
-    "mysql": (mysql_bruteforce, 3306, 3),
-    "postgres": (postgres_bruteforce, 5432, 3),
+PORTS_TO_SCAN: dict[int, str] = {21: "ftp", 22: "ssh", 3306: "mysql", 5432: "postgres"}
+SCAN_DELAY = 0.5
+
+# Service name to (bruteforce function, default port, max attempts, delay between attempts)
+BRUTEFORCE_FUNCS: Dict[str, Tuple[Callable[..., Optional[str]], int, int, float]] = {
+    "ssh": (ssh_bruteforce, 22, 3, 1.0),
+    "ftp": (ftp_bruteforce, 21, 3, 1.0),
+    "mysql": (mysql_bruteforce, 3306, 3, 1.0),
+    "postgres": (postgres_bruteforce, 5432, 3, 1.0),
 }
 
 DEFAULT_USERNAMES = ["root", "admin", "postgres"]

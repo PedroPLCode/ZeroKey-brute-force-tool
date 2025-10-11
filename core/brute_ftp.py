@@ -1,10 +1,16 @@
+import time
 from ftplib import FTP, error_perm
 from typing import Optional
 from .utils import clear_line
 
 
 def ftp_bruteforce(
-    host: str, username: str, wordlist_path: str, port: int = 21, timeout: int = 3
+    host: str, 
+    username: str, 
+    wordlist_path: str, 
+    port: int = 21, 
+    timeout: int = 3, 
+    delay: float = 1.0
 ) -> Optional[str]:
     """
     Attempt FTP brute force attack using a password wordlist.
@@ -42,5 +48,6 @@ def ftp_bruteforce(
                     end="\r",
                 )
                 pass
+            time.sleep(delay)
 
     return None

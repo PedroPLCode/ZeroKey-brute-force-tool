@@ -1,10 +1,16 @@
+import time
 import paramiko
 from typing import Optional
 from .utils import clear_line
 
 
 def ssh_bruteforce(
-    host: str, username: str, wordlist_path: str, port: int = 22, timeout: int = 3
+    host: str,
+    username: str,
+    wordlist_path: str,
+    port: int = 22,
+    timeout: int = 3,
+    delay: float = 1.0
 ) -> Optional[str]:
     """
     Attempt SSH brute force attack using a password wordlist.
@@ -49,5 +55,6 @@ def ssh_bruteforce(
                 pass
             finally:
                 client.close()
+            time.sleep(delay)
 
     return None
