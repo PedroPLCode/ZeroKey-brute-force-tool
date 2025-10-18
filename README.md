@@ -25,7 +25,7 @@ pip install -r requirements.txt
 ### Usage
 ```bash
 # adjust config.py and settings.py if needed.
-python __main__.py <host> <username> <wordlist> [--protocol {ssh,ftp,telnet,mysql,postgres,auto}] [--port PORT] [--output OUTPUT]
+python entrypoint.py <host> <username> <wordlist> [--protocol {ssh,ftp,telnet,mysql,postgres,auto}] [--port PORT] [--output OUTPUT]
 
 Arguments
 <host> — Target host IP or domain
