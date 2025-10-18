@@ -8,11 +8,11 @@ from core.utils import (
     create_results_filename,
     get_current_timestamp
 )
-from settings import (
+from settings import DEFAULT_USERNAMES
+from config import (
     LOGS_PATH,
     LOG_FILE,
     RESULT_PATH,
-    DEFAULT_USERNAMES,
     DEFAULT_PASSWORDS_FILE,
     BRUTEFORCE_FUNCS,
 )
@@ -26,7 +26,7 @@ def entrypoint() -> None:
     """
     try:
         parser = argparse.ArgumentParser(
-            description="Brute-force tool for various services (SSH, FTP, MySQL, PostgreSQL)."
+            description="Brute-force tool for various services (SSH, FTP, Telnet, MySQL, PostgreSQL)."
         )
         parser.add_argument("host", help="Target host IP address")
         parser.add_argument(
@@ -48,7 +48,7 @@ def entrypoint() -> None:
         )
         parser.add_argument(
             "--protocol",
-            choices=["ssh", "ftp", "mysql", "postgres", "auto"],
+            choices=["ssh", "ftp", "telnet", "mysql", "postgres", "auto"],
             default="auto",
             help="Protocol to brute-force (default: auto)"
         )

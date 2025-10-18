@@ -51,7 +51,7 @@ def test_save_to_json_creates_file_and_saves_data(
     assert loaded == data
 
     captured = capsys.readouterr()
-    assert "[✓] Results saved to" in captured.out
+    assert "[OK] Results saved to" in captured.out
 
 
 @pytest.mark.parametrize("path", ["results/test.json", "logs/test.log"])

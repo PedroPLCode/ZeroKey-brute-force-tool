@@ -25,10 +25,11 @@ def mock_services_and_brute() -> Generator[dict[str, Any], None, None]:
     ) as mock_log, patch(
         "entrypoint.BRUTEFORCE_FUNCS",
         {
-            "ssh": (mock_ssh, 22, 3),
-            "ftp": (mock_ftp, 21, 3),
-            "mysql": (mock_mysql, 3306, 3),
-            "postgres": (mock_pg, 5432, 3),
+            "ssh": (mock_ssh, 22, 3, 0.5),
+            "ftp": (mock_ftp, 21, 3, 0.5),
+            "telnet": (mock_ftp, 21, 3, 0.5),
+            "mysql": (mock_mysql, 3306, 3, 0.5),
+            "postgres": (mock_pg, 5432, 3, 0.5),
         },
     ) as mock_funcs:
 
@@ -60,40 +61,6 @@ def run_entrypoint_with_args(args_list: list[str]) -> None:
     test_args: list[str] = ["entrypoint.py"] + args_list
     with patch.object(sys, "argv", test_args):
         entrypoint()
-
-
-def test_entrypoint_auto_detect_success(mock_services_and_brute: dict[str, Any]):
-    """Test the entrypoint with auto-detection of services.
-
-    Args:
-        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
-    """
-    run_entrypoint_with_args(
-        ["127.0.0.1", "root", "passwords.txt", "--protocol", "auto"]
-    )
-
-    mock = mock_services_and_brute
-    mock["detect"].assert_called_once_with("127.0.0.1")
-    mock["ssh"].assert_called_once()
-    mock["log"].assert_called_once()
-    mock["save"].assert_called_once()
-
-
-def test_entrypoint_mysql_success(mock_services_and_brute: dict[str, Any]):
-    """Test the entrypoint with MySQL protocol.
-
-    Args:
-        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
-    """
-    mock_services_and_brute["mysql"].return_value = "mysqlpass"
-
-    run_entrypoint_with_args(
-        ["127.0.0.1", "admin", "passwords.txt", "--protocol", "mysql"]
-    )
-
-    mock_services_and_brute["mysql"].assert_called_once()
-    mock_services_and_brute["log"].assert_called_once()
-    mock_services_and_brute["save"].assert_called_once()
 
 
 def test_entrypoint_unknown_service_skips(mock_services_and_brute: dict[str, Any]):

@@ -1,7 +1,7 @@
 import time
 import socket
 from typing import List, Dict
-from settings import PORTS_TO_SCAN, SCAN_DELAY
+from config import PORTS_TO_SCAN, SCAN_DELAY
 
 
 def detect_services(host: str) -> List[str]:
