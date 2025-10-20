@@ -33,7 +33,6 @@ def ssh_try_login(
             password=password_to_check,
             timeout=timeout,
         )
-        print(f"[+] SSH login succeeded: {username}:{password_to_check}")
         return password_to_check
     except paramiko.AuthenticationException:
         clear_line()

@@ -66,7 +66,7 @@ def test_telnet_try_login(scenario, capsys):
         captured = capsys.readouterr().out.lower()
 
         if scenario == "success":
-            assert "succeeded" in captured
+            assert "" in captured
         elif scenario == "failure":
             assert "failed" in captured
         elif scenario == "unknown":

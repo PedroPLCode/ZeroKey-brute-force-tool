@@ -35,7 +35,6 @@ def postgres_try_login(
             dbname=POSTGRES_DB_NAME,
             connect_timeout=timeout,
         )
-        print(f"[+] PostgreSQL login succeeded: {username}:{password_to_check}")
         conn.close()
         return password_to_check
     except OperationalError:

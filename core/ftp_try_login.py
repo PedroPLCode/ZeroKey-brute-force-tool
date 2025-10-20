@@ -27,7 +27,6 @@ def ftp_try_login(
         ftp = FTP()
         ftp.connect(host, port, timeout=timeout)
         ftp.login(user=username, passwd=password_to_check)
-        print(f"[+] FTP login succeeded: {username}:{password_to_check}")
         ftp.quit()
         return password_to_check
     except error_perm:

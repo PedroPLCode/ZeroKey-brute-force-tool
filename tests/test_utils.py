@@ -74,11 +74,9 @@ def test_log_result_writes_file_and_prints_ok(tmp_path, monkeypatch, capsys):
     assert log_file.exists()
     content = log_file.read_text(encoding="utf-8")
     assert fake_ts in content
-    assert "HOST: 10.0.0.1" in content
-    assert "PROTO: Ssh" in content or "PROTO: ssh" in content
-    assert "SUCCESS: True" in content
-    assert "USER: root" in content
-    assert "PASSWORD: pw123" in content
+    assert "10.0.0.1:ssh" in content
+    assert "success:True" in content
+    assert "root:pw123" in content
 
     captured = capsys.readouterr()
     assert "[OK] Log entry added" in captured.out

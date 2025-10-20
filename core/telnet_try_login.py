@@ -63,8 +63,6 @@ def telnet_try_login(
         text = response.decode(errors="ignore").lower()
 
         if any(ind in text for ind in TELNET_SUCCESS_INDICATORS):
-            clear_line()
-            print(f"[+] Telnet login succeeded: {username}:{password_to_check}")
             tn.close()
             return password_to_check
 

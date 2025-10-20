@@ -31,7 +31,6 @@ def mysql_try_login(
             port=port,
             connect_timeout=timeout,
         )
-        print(f"[+] MySQL login succeeded: {username}:{password_to_check}")
         conn.close()
         return password_to_check
     except pymysql.err.OperationalError:

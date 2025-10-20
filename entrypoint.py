@@ -113,15 +113,8 @@ def entrypoint() -> None:
                 entry = LOGIN_FUNCS[proto]
                 func = entry[0]
                 default_port = entry[1] if len(entry) > 1 else 0
-                if len(entry) >= 4:
-                    delay = entry[2]
-                    connection_timeout = entry[3]
-                elif len(entry) == 3:
-                    connection_timeout = entry[2]
-                    delay = 0.5
-                else:
-                    connection_timeout = 3
-                    delay = 0.5
+                delay = entry[2]
+                connection_timeout = entry[3]
 
                 port = args.port or default_port
                 wordlist_path = args.wordlist or DEFAULT_PASSWORDS_FILE
@@ -169,8 +162,7 @@ def entrypoint() -> None:
                                         user,
                                         password_to_check,
                                         port=port,
-                                        timeout=connection_timeout,
-                                        delay=delay
+                                        timeout=connection_timeout
                                     )
                                 except TypeError:
                                     password = func(
@@ -197,6 +189,7 @@ def entrypoint() -> None:
                                 pass
 
                             if password:
+                                print(f"[SUCCESS] {proto.title()} {user}:{password}")
                                 try:
                                     write_success(success_path, password)
                                 except Exception:
@@ -213,7 +206,6 @@ def entrypoint() -> None:
                                     log_result(result, log_path=log_path)
                                 except Exception as e:
                                     print(f"[WARN] Failed to log result: {e}")
-                                print(f"\n[SUCCESS] {proto.upper()} {user}:{password}")
                                 all_results.append(result)
                                 break
 
