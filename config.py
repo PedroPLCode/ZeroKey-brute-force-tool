@@ -1,22 +1,22 @@
-from core.brute_ssh import ssh_bruteforce
-from core.brute_ftp import ftp_bruteforce
-from core.brute_telnet import telnet_bruteforce
-from core.brute_mysql import mysql_bruteforce
-from core.brute_postgres import postgres_bruteforce
+from core.ssh_try_login import ssh_try_login
+from core.ftp_try_login import ftp_try_login
+from core.telnet_try_login import telnet_try_login
+from core.mysql_try_login import mysql_try_login
+from core.postgres_try_login import postgres_try_login
 from typing import Dict, Optional, Callable, Tuple
 
 """
 Configuration settings for the brute-force tool.
 PORTS_TO_SCAN is a dictionary mapping common service ports to their respective service names.
 SCAN_DELAY sets a delay between port scans to avoid overwhelming the target.
-BRUTEFORCE_FUNCS maps service names to their corresponding brute-force functions along with
-default port, max attempts and delay between attempts.
+LOGIN_FUNCS maps service names to their corresponding login functions along with
+default port, delay between attempts and connection timeout.
 DATA_DIR specifies the directory where username and password files are stored.
 DEFAULT_USERNAMES_FILE and DEFAULT_PASSWORDS_FILE define the paths to these files.
 DEFAULT_PASSWORDS_FILE defines the path to the default passwords file.
+STATE_PATH specifies where to store progress state files.
 RESULT_PATH and LOGS_PATH define where to store results and logs respectively.
-LOG_PATH specifies the log file name.
-LOG_FILE specifies the log file name.
+RESULT_LOG_FILE specifies the log file name.
 """
 
 PORTS_TO_SCAN: dict[int, str] = {
@@ -28,20 +28,20 @@ PORTS_TO_SCAN: dict[int, str] = {
 }
 SCAN_DELAY = 0.5
 
-# Service name to (bruteforce function, default port, max attempts, delay between attempts)
-BRUTEFORCE_FUNCS: Dict[str, Tuple[Callable[..., Optional[str]], int, int, float]] = {
-    "ssh": (ssh_bruteforce, 22, 3, 0.3),
-    "ftp": (ftp_bruteforce, 21, 3, 0.3),
-    "telnet": (telnet_bruteforce, 23, 3, 0.3),
-    "mysql": (mysql_bruteforce, 3306, 3, 0.3),
-    "postgres": (postgres_bruteforce, 5432, 3, 0.3),
+# Service name to (login function, default port, delay between attempts, connection timeout)
+LOGIN_FUNCS: Dict[str, Tuple[Callable[..., Optional[str]], int, float, float]] = {
+    "ssh": (ssh_try_login, 22, 0.5, 5.0),
+    "ftp": (ftp_try_login, 21, 0.5, 5.0),
+    "telnet": (telnet_try_login, 23, 3.0, 5.0),
+    "mysql": (mysql_try_login, 3306, 0.5, 5.0),
+    "postgres": (postgres_try_login, 5432, 0.5, 5.0),
 }
 
 DATA_DIR = "data/"
 DEFAULT_USERNAMES_FILE = DATA_DIR + "usernames.txt"
 DEFAULT_PASSWORDS_FILE = DATA_DIR + "passwords.txt"
 
-RESULT_PATH = "results/"
+STATE_PATH = f"{DATA_DIR}state/"
 
-LOGS_PATH = "logs/"
-LOG_FILE = "brute_force.log"
+RESULT_PATH = "results/"
+RESULT_LOG_FILE = "brute_force.log"

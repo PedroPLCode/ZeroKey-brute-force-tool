@@ -1,12 +1,12 @@
 # ZeroKey-bruteforce-tool
-A simple command-line brute force tool for SSH, FTP, Telnet, MySQL, and PostgreSQL services with automatic service detection.
+A simple command-line brute force tool for SSH, FTP, Telnet, MySQL, and PostgreSQL services with automatic service detection and progress saving.
 
 ### Features
 - Automatic detection of running services on the target host (SSH, FTP, Telnet, MySQL, PostgreSQL)
 - Brute force attack using a username and password wordlist
 - Support for specifying protocol and port manually
 - Logs successful login attempts to a file
-- Saves results in JSON format
+- Saves progress and results
 - Easy to extend with additional protocols
 
 ### Requirements
@@ -25,6 +25,8 @@ pip install -r requirements.txt
 ### Usage
 ```bash
 # adjust config.py and settings.py if needed.
+# check results, data and data/state dirs.
+pytest # always good to run tests
 python entrypoint.py <host> <username> <wordlist> [--protocol {ssh,ftp,telnet,mysql,postgres,auto}] [--port PORT] [--output OUTPUT]
 
 Arguments

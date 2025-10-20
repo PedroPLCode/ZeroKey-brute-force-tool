@@ -4,9 +4,11 @@ DEFAULT_USERNAMES provides a list of common usernames to try during brute-force 
 TELNET_FAILURE_INDICATORS strings to find failure telnett login attempt.
 TELNET_SUCCESS_INDICATORS strings to confirm successful telnet login attempt.
 TELNET_SLEEP_DELAY Sleep delay to wait for telnet response in seconds.
+POSTGRES_DB_NAME specifies the default database name for PostgreSQL connections.
 """
 
 DEFAULT_USERNAMES = ["root", "admin", "postgres"]
+
 TELNET_FAILURE_INDICATORS = [
     "login incorrect",
     "incorrect",
@@ -18,3 +20,5 @@ TELNET_FAILURE_INDICATORS = [
 ]
 TELNET_SUCCESS_INDICATORS = ["$", "#", ">", "last login", "welcome", "shell"]
 TELNET_SLEEP_DELAY = 1
+
+POSTGRES_DB_NAME = "postgres"

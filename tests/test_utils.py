@@ -1,79 +1,96 @@
-import json
-import pytest
-from pathlib import Path
-from core.utils import log_result, save_to_json
+import re
+from datetime import datetime
+from core import utils
 
 
-def test_log_result_creates_log_file_and_writes(tmp_path: Path):
-    """Test that log_result creates a log file and writes the expected content.
-
-    Args:
-        tmp_path (Path): Temporary directory path for the test.
+def test_load_usernames_from_file_ignores_comments_and_blank_lines(tmp_path):
     """
-    log_path = tmp_path / "logdir" / "bruteforce.log"
-    data: dict[str, object] = {
-        "host": "127.0.0.1",
-        "username": "user",
-        "protocol": "ssh",
-        "success": True,
-        "password": "secret",
-    }
-
-    log_result(data, str(log_path))
-
-    assert log_path.exists()
-    content = log_path.read_text()
-    assert "HOST: 127.0.0.1" in content
-    assert "USER: user" in content
-    assert "PROTO: ssh" in content
-    assert "SUCCESS: True" in content
-    assert "PASSWORD: secret" in content
-    assert content.startswith("[")
-
-
-def test_save_to_json_creates_file_and_saves_data(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
-):
-    """Test that save_to_json creates a JSON file and saves the expected data.
-
-    Args:
-        tmp_path (Path): Temporary directory path for the test.
-        capsys (pytest.CaptureFixture[str]): Capture fixture for stdout.
+    Test that load_usernames_from_file reads usernames, ignores comment lines
+    (starting with '#') and empty lines, and returns the expected list.
     """
-    data = {"key": "value"}
-    json_path = tmp_path / "results" / "data.json"
+    content = """
+    # this is a comment
+    alice
 
-    save_to_json(data, str(json_path))
+    # another comment
+    bob
+    # indented comment
+    charlie
+    """
+    fp = tmp_path / "users.txt"
+    fp.write_text(content, encoding="utf-8")
 
-    assert json_path.exists()
-    with open(json_path) as f:
-        loaded = json.load(f)
-    assert loaded == data
+    users = utils.load_usernames_from_file(str(fp))
+    assert users == ["alice", "bob", "charlie"]
+
+
+def test_load_usernames_from_file_missing_file_returns_empty_list(tmp_path, capsys):
+    """
+    If the file cannot be read, the function should return an empty list
+    and print an error message (caught by capturing stdout).
+    """
+    missing = tmp_path / "no_such_file.txt"
+    users = utils.load_usernames_from_file(str(missing))
+    assert users == []
 
     captured = capsys.readouterr()
-    assert "[OK] Results saved to" in captured.out
+    assert "Unable to read user file" in captured.out or "Unable to read user file" in captured.err
 
 
-@pytest.mark.parametrize("path", ["results/test.json", "logs/test.log"])
-def test_directories_created_for_log_and_json(tmp_path: Path, path: str):
-    """Test that the necessary directories are created for log and JSON files.
-
-    Args:
-        tmp_path (Path): Temporary directory path for the test.
-        path (str): Path to the log or JSON file.
+def test_get_current_timestamp_format():
     """
-    full_path = tmp_path / path
-    data: dict[str, object] = {
-        "host": "host",
-        "username": "user",
-        "protocol": "proto",
-        "success": False,
-        "password": None,
+    get_current_timestamp should return a string in the format YYYY-MM-DD HH:MM:SS
+    that can be parsed by datetime.strptime with the same format.
+    """
+    ts = utils.get_current_timestamp()
+    assert re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", ts)
+    parsed = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+    assert isinstance(parsed, datetime)
+
+
+def test_log_result_writes_file_and_prints_ok(tmp_path, monkeypatch, capsys):
+    """
+    log_result should append a single-line entry to the specified log file and
+    print an '[OK] Log entry added' message. We monkeypatch get_current_timestamp
+    to a fixed value so the log line is deterministic.
+    """
+    fake_ts = "2000-01-02 03:04:05"
+    monkeypatch.setattr(utils, "get_current_timestamp", lambda: fake_ts)
+
+    data = {
+        "host": "10.0.0.1",
+        "protocol": "ssh",
+        "success": True,
+        "username": "root",
+        "password": "pw123",
     }
 
-    if full_path.suffix == ".log":
-        log_result(data, str(full_path))
-        assert full_path.exists()
-    else:
-        save_to_json(data, str(full_path))
-        assert full_path.exists()
+    log_dir = tmp_path / "logs"
+    log_file = log_dir / "bruteforce.log"
+    assert not log_dir.exists()
+
+    utils.log_result(data, log_path=str(log_file))
+
+    assert log_file.exists()
+    content = log_file.read_text(encoding="utf-8")
+    assert fake_ts in content
+    assert "HOST: 10.0.0.1" in content
+    assert "PROTO: Ssh" in content or "PROTO: ssh" in content
+    assert "SUCCESS: True" in content
+    assert "USER: root" in content
+    assert "PASSWORD: pw123" in content
+
+    captured = capsys.readouterr()
+    assert "[OK] Log entry added" in captured.out
+
+
+def test_clear_line_prints_escape_sequence(capsys):
+    """
+    clear_line should print the terminal escape sequence to clear the line
+    (\\033[K) and return the cursor to start (\\r). We verify stdout contains
+    the escape code followed by carriage return.
+    """
+    utils.clear_line()
+    captured = capsys.readouterr()
+    assert "\033[K" in captured.out
+    assert captured.out.endswith("\r") or captured.out.endswith("\r\n")

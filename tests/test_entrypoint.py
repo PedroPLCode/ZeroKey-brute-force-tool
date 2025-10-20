@@ -1,94 +1,53 @@
-import pytest
 import sys
-from unittest.mock import patch
-from typing import Generator, Any
+import os
+from unittest.mock import MagicMock
 from entrypoint import entrypoint
 
 
-@pytest.fixture
-def mock_services_and_brute() -> Generator[dict[str, Any], None, None]:
-    """Mock the service detection and brute-force functions.
-
-    Yields:
-        Generator[dict[str, Any], None, None]: Mocked functions and their return values.
+def run_entrypoint_with_args(args_list):
     """
-    with patch("core.brute_ssh.ssh_bruteforce") as mock_ssh, patch(
-        "core.brute_ftp.ftp_bruteforce"
-    ) as mock_ftp, patch("core.brute_mysql.mysql_bruteforce") as mock_mysql, patch(
-        "core.brute_postgres.postgres_bruteforce"
-    ) as mock_pg, patch(
-        "entrypoint.detect_services"
-    ) as mock_detect, patch(
-        "entrypoint.save_to_json"
-    ) as mock_save, patch(
-        "entrypoint.log_result"
-    ) as mock_log, patch(
-        "entrypoint.BRUTEFORCE_FUNCS",
-        {
-            "ssh": (mock_ssh, 22, 3, 0.5),
-            "ftp": (mock_ftp, 21, 3, 0.5),
-            "telnet": (mock_ftp, 21, 3, 0.5),
-            "mysql": (mock_mysql, 3306, 3, 0.5),
-            "postgres": (mock_pg, 5432, 3, 0.5),
-        },
-    ) as mock_funcs:
-
-        mock_ssh.return_value = "sshpass"
-        mock_ftp.return_value = "ftppass"
-        mock_mysql.return_value = "mysqlpass"
-        mock_pg.return_value = "pgpass"
-
-        mock_detect.return_value = ["ssh"]
-
-        yield {
-            "detect": mock_detect,
-            "ssh": mock_ssh,
-            "ftp": mock_ftp,
-            "mysql": mock_mysql,
-            "pg": mock_pg,
-            "save": mock_save,
-            "log": mock_log,
-            "funcs": mock_funcs,
-        }
-
-
-def run_entrypoint_with_args(args_list: list[str]) -> None:
-    """Run the entrypoint with the given command-line arguments.
-
-    Args:
-        args_list (list[str]): List of command-line arguments.
+    Helper to run entrypoint() with a temporary argv list.
+    IMPORTANT: Put positional args before option flags so argparse assigns
+    positionals correctly (host, [usernames...], [wordlist], then options).
     """
-    test_args: list[str] = ["entrypoint.py"] + args_list
-    with patch.object(sys, "argv", test_args):
+    test_argv = ["entrypoint.py"] + args_list
+    old_argv = sys.argv
+    sys.argv = test_argv
+    try:
         entrypoint()
+    finally:
+        sys.argv = old_argv
 
 
-def test_entrypoint_unknown_service_skips(mock_services_and_brute: dict[str, Any]):
-    """Test the entrypoint with an unknown service.
+def make_wordlist(tmp_path, lines):
+    """Create a simple wordlist file and return its path."""
+    p = tmp_path / "wl.txt"
+    p.write_text("\n".join(lines), encoding="utf-8")
+    return str(p)
 
-    Args:
-        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
+
+def test_entrypoint_skips_if_success_exists(monkeypatch, tmp_path, capsys):
     """
-    mock_services_and_brute["detect"].return_value = ["unknown"]
-
-    run_entrypoint_with_args(
-        ["127.0.0.1", "user", "passwords.txt", "--protocol", "auto"]
-    )
-
-    mock_services_and_brute["save"].assert_called_once()
-
-
-def test_entrypoint_no_services_detected(mock_services_and_brute: dict[str, Any]):
-    """Test the entrypoint when no services are detected.
-
-    Args:
-        mock_services_and_brute (dict[str, Any]): Mocked functions and their return values.
+    If a success marker exists for a given host/user/protocol, entrypoint should
+    skip brute-forcing that combination (login func should not be invoked).
     """
-    mock_services_and_brute["detect"].return_value = []
+    host = "127.0.0.1"
+    user = "alice"
+    wl = make_wordlist(tmp_path, ["x"])
 
-    run_entrypoint_with_args(
-        ["127.0.0.1", "user", "passwords.txt", "--protocol", "auto"]
-    )
+    monkeypatch.setattr("entrypoint.detect_services", lambda h: ["ftp"])
+    mock_login = MagicMock(return_value=None)
+    monkeypatch.setattr("entrypoint.LOGIN_FUNCS", {"ftp": (mock_login, 21, 0.01, 1)}, raising=False)
 
-    mock_services_and_brute["ssh"].assert_not_called()
-    mock_services_and_brute["save"].assert_not_called()
+    monkeypatch.setattr("entrypoint.read_progress", lambda p: 0)
+    monkeypatch.setattr("entrypoint.make_progress_path", lambda w, h, u, pr: os.path.join(str(tmp_path), f"{pr}.progress"))
+    monkeypatch.setattr("entrypoint.make_success_path", lambda w, h, u, pr: os.path.join(str(tmp_path), f"{pr}.success"))
+
+    monkeypatch.setattr("entrypoint.success_exists", lambda p: True)
+
+    run_entrypoint_with_args([host, user, wl, "--protocol", "auto"])
+
+    mock_login.assert_not_called()
+
+    captured = capsys.readouterr()
+    assert "[SKIP]" in captured.out or "already cracked" in captured.out
